@@ -1,0 +1,19 @@
+{
+  "0.0.2": {
+    "date": "2020-07-21",
+    "Categories": {
+      "Other": [
+        "Fixed packaging process to include a copy of the license in the final zip"
+      ]
+    }
+  },
+  "0.0.1": {
+    "date": "2020-07-19",
+    "Categories": {
+      "Features": [
+        "Automatically saves after every hour of gameplay to a timestamped save, with a configurable prefix",
+        "The game will prompt the player if the autosave prefix is not configured"
+      ]
+    }
+  }
+}
