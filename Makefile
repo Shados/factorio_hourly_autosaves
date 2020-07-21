@@ -2,7 +2,7 @@ MOONC?=moonc
 MOON_FILES=control.moon settings.moon
 LUA_FILES=$(patsubst %.moon,%.lua,$(MOON_FILES))
 PACKAGE_DIR?=out
-PACKAGE_FILES=info.json changelog.txt locale $(LUA_FILES)
+PACKAGE_FILES=info.json changelog.txt locale LICENSE.md $(LUA_FILES)
 PACKAGE_NAME=hourly_autosaves
 PACKAGE_VERSION?=$(shell cat info.json | jq -r .version)
 
@@ -28,4 +28,4 @@ watch: build
 	moonc -w $(MOON_FILES)
 
 clean:
-	rm -f $(LUA_FILES) *.zip
+	rm -rf $(LUA_FILES) $(PACKAGE_DIR)/*.zip
