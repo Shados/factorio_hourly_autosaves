@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.0.3 (2020-07-24)
+
+### Changes
+
+- Made the autosave interval configurable (per map, in minutes, defaulting to 60)
+
+---
+
 ## 0.0.2 (2020-07-21)
 
 ### Other
