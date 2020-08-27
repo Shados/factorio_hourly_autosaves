@@ -6,6 +6,10 @@
 
 - Autosave timestamps are now 0-padded out to 5 digits for hours, 2 for minutes (e.g. SavePrefix-00012h00m), ensuring they sort lexicographically in chronological order
 
+### Features
+
+- The ability to manually trigger a timestamped save with a custom suffix, via a shortcut bar button
+
 ---
 
 ## 0.0.3 (2020-07-24)

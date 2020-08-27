@@ -1,8 +1,8 @@
 MOONC?=moonc
-MOON_FILES=control.moon settings.moon $(wildcard migrations/*.moon)
+MOON_FILES=control.moon data.moon settings.moon $(wildcard migrations/*.moon) $(wildcard lib/*.moon)
 LUA_FILES=$(patsubst %.moon,%.lua,$(MOON_FILES))
 PACKAGE_DIR?=out
-PACKAGE_FILES=info.json locale LICENSE.md $(LUA_FILES)
+PACKAGE_FILES=info.json locale graphics LICENSE.md $(LUA_FILES)
 PACKAGE_NAME=hourly_autosaves
 PACKAGE_VERSION?=$(shell cat info.json | jq -r .version)
 
