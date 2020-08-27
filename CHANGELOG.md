@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.0.0 (2020-08-27)
+
+### Changes
+
+- Autosave timestamps are now 0-padded out to 5 digits for hours, 2 for minutes (e.g. SavePrefix-00012h00m), ensuring they sort lexicographically in chronological order
+
+---
+
 ## 0.0.3 (2020-07-24)
 
 ### Changes

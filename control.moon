@@ -24,6 +24,8 @@ mod_init = ->
   -- Store the initial hourly_autosaves_interval so we can gracefully handle changes mid-game
   if global.autosave_interval == nil
     global.autosave_interval = settings.global["hourly_autosaves_interval"].value
+
+  -- TODO Set up GUI button to do named saves
   return
 
 
@@ -85,11 +87,9 @@ tick_to_save_name = (tick) ->
 
 
 tick_to_suffix = (tick) ->
-  minutes = tick_to_minutes (tick % TICKS_PER_HOUR)
-  if minutes == 0
-    "#{tick_to_hours tick}h"
-  else
-    "#{tick_to_hours tick}h#{minutes}m"
+  string.format "%05dh%02dm",
+    tick_to_hours tick,
+    tick_to_minutes (tick % TICKS_PER_HOUR)
 
 
 tick_to_hours = (tick) ->
