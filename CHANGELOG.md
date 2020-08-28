@@ -8,7 +8,7 @@
 
 ### Features
 
-- The ability to manually trigger a timestamped save with a custom suffix, via a shortcut bar button
+- The ability to manually trigger a timestamped save with a custom suffix, via a shortcut bar button or keybind
 
 ---
 

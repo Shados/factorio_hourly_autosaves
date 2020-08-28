@@ -3,7 +3,7 @@ GUI = require "lib/gui"
 TICKS_PER_MINUTE = 60 * 60
 TICKS_PER_HOUR = TICKS_PER_MINUTE * 60
 
-local close_gui_button_handler, debug_print, hourly_autosave, mod_init, mod_print, permissions_error_gui, save_gui, save_shortcut, tagged_save_gui_handler, timestamped_save, tick_to_hours, tick_to_minutes, tick_to_save_name, tick_to_suffix, update_save_interval
+local close_gui_button_handler, debug_print, hourly_autosave, manual_save, mod_init, mod_print, permissions_error_gui, save_gui, save_hotkey, save_shortcut, tagged_save_gui_handler, timestamped_save, tick_to_hours, tick_to_minutes, tick_to_save_name, tick_to_suffix, update_save_interval
 
 
 main = ->
@@ -18,6 +18,9 @@ main = ->
 
   -- Register handler for manual save GUI
   script.on_event defines.events.on_lua_shortcut, save_shortcut
+
+  -- Register handler for manual save hotkey
+  script.on_event "tagged_save_hotkey", save_hotkey
 
   GUI.setup!
   return
@@ -75,11 +78,20 @@ update_save_interval = (on_runtime_mod_setting_changed_event) ->
   global.autosave_interval = new_interval
   return
 
+save_hotkey = (tagged_save_hotkey_event) ->
+  { :player_index, :tick } = tagged_save_hotkey_event
+  player = game.players[player_index]
+  manual_save player, tick
+
 
 save_shortcut = (on_lua_shortcut_event) ->
   { :player_index, :prototype_name, :tick } = on_lua_shortcut_event
   return unless prototype_name == "tagged_save"
   player = game.players[player_index]
+  manual_save player, tick
+
+
+manual_save = (player, tick) ->
   -- TODO Devise an actual permissions system? Will the base game one ever be
   -- accessible to mods? Is there an existing inter-mod solution for this?
   if player.admin
