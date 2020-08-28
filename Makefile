@@ -34,7 +34,7 @@ $(PACKAGE_DIR)/$(PACKAGE_NAME)_$(PACKAGE_VERSION): changelog.json $(PACKAGE_FILE
 	factorio-changelog-creator $@/ changelog.json --format ingame
 
 $(PACKAGE_DIR)/$(PACKAGE_NAME)_$(PACKAGE_VERSION).zip: $(PACKAGE_DIR)/$(PACKAGE_NAME)_$(PACKAGE_VERSION)
-	cd $(PACKAGE_DIR); zip -r $@ -xi $(PACKAGE_NAME)_$(PACKAGE_VERSION)/
+	cd $(PACKAGE_DIR); zip -r $(abspath $@) -xi $(PACKAGE_NAME)_$(PACKAGE_VERSION)/
 	rm -rf $(PACKAGE_DIR)/$(PACKAGE_NAME)_$(PACKAGE_VERSION)/
 
 watch: build
