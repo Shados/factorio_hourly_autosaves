@@ -5,6 +5,7 @@
 ### Changes
 
 - Autosave timestamps are now 0-padded out to 5 digits for hours, 2 for minutes (e.g. SavePrefix-00012h00m), ensuring they sort lexicographically in chronological order
+- The missing-prefix reminder now uses a GUI dialog instead of a simple text message
 
 ### Features
 
