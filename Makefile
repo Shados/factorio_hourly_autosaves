@@ -6,7 +6,7 @@ PACKAGE_FILES=info.json locale graphics LICENSE.md $(LUA_FILES)
 PACKAGE_NAME=hourly_autosaves
 PACKAGE_VERSION?=$(shell cat info.json | jq -r .version)
 
-.PHONY: all build debug package clean watch
+.PHONY: all build debug develop package clean watch
 
 all: build
 
@@ -21,6 +21,12 @@ CHANGELOG.md: changelog.json
 package: build $(PACKAGE_DIR)/$(PACKAGE_NAME)_$(PACKAGE_VERSION).zip
 
 debug: build $(PACKAGE_DIR)/$(PACKAGE_NAME)_$(PACKAGE_VERSION)
+
+develop:
+	inotifywait -r Makefile $(MOON_FILES) $(PACKAGE_FILES) -m --event close_write 2>/dev/null | while read ev; do \
+		rm -rf $(PACKAGE_DIR)/hourly_autosaves*; \
+		$(MAKE) debug; \
+		done
 
 $(PACKAGE_DIR)/$(PACKAGE_NAME)_$(PACKAGE_VERSION): changelog.json $(PACKAGE_FILES)
 	@test -d $@ || mkdir -p $@
