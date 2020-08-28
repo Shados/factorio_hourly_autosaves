@@ -10,6 +10,10 @@
 
 - The ability to manually trigger a timestamped save with a custom suffix, via a shortcut bar button or keybind
 
+### Other
+
+- Gave the mod a thumbnail/icon
+
 ---
 
 ## 0.0.3 (2020-07-24)
