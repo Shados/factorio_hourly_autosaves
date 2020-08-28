@@ -3,6 +3,9 @@ Factorio game assets. Based on the Factorio EULA/TOS and comments made by the
 developers on the Factorio forums, non-commercial distribution and use of this
 modified asset is allowed only as part of a Factorio mod.
 
+Other art assets are my own work, and licensed [CC BY-NC-SA
+4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/).
+
 Everything else in this repository is licensed under the GPL 3.0, detailed below.
 
 ### GNU GENERAL PUBLIC LICENSE
