@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.0.1 (2021-02-23)
+
+### Other
+
+- Marked as compatible with Factorio 1.1
+
+---
+
 ## 1.0.0 (2020-08-27)
 
 ### Changes

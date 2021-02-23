@@ -17,5 +17,5 @@ data\extend {
     type: "custom-input"
     name: "tagged_save_hotkey"
     key_sequence: "SHIFT + F5"
-  }
+  },
 }

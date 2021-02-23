@@ -1,4 +1,10 @@
 {
+  "1.0.1": {
+    "date": "2021-02-23",
+    "Categories": {
+      "Other": ["Marked as compatible with Factorio 1.1"]
+    }
+  },
   "1.0.0": {
     "date": "2020-08-27",
     "Categories": {
@@ -9,9 +15,7 @@
       "Features": [
         "The ability to manually trigger a timestamped save with a custom suffix, via a shortcut bar button or keybind"
       ],
-      "Other": [
-        "Gave the mod a thumbnail/icon"
-      ]
+      "Other": ["Gave the mod a thumbnail/icon"]
     }
   },
   "0.0.3": {

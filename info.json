@@ -1,10 +1,10 @@
 {
-    "title": "Hourly Autosaves",
-    "version": "1.0.0",
-    "name": "hourly_autosaves",
-    "homepage": "https://github.com/Shados/factorio_hourly_autosaves",
-    "author": "Shados",
-    "description": "Autosaves the game (using a configurable prefix) on every hour of game-time",
-    "factorio_version": "1.0",
-    "dependencies": []
+  "title": "Hourly Autosaves",
+  "version": "1.0.1",
+  "name": "hourly_autosaves",
+  "homepage": "https://github.com/Shados/factorio_hourly_autosaves",
+  "author": "Shados",
+  "description": "Autosaves the game (using a configurable prefix) on every hour of game-time",
+  "factorio_version": "1.1",
+  "dependencies": []
 }
