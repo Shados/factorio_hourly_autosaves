@@ -1,13 +1,6 @@
 let
-  # NUR setup
-  nur-pin = let
-    rev = "b824ad0cbc68e2eb1e25031fc7b29af19a59cc1b";
-    sha256 = "179dw1lciq4ihlxgz1d5b3b41hzz9vldya2m3ampv9wc1a3aqai9";
-  in builtins.fetchTarball {
-    url = "https://github.com/nix-community/NUR/archive/${rev}.tar.gz";
-    inherit sha256;
-  };
-  nur-no-packages = import nur-pin { };
+  pins = import ./nix/sources.nix;
+  nur-no-packages = import pins.nur { };
 
   # Add in Lua package overrides
   pkgs = import <nixpkgs> {
@@ -17,15 +10,6 @@ let
     ];
   };
   lp = pkgs.luajitPackages;
-
-  # Use my moonscript PR w/ inotify-based watcher
-  localMoonscript = lp.moonscript.overrideAttrs (oldAttrs: {
-    src = pkgs.fetchFromGitHub {
-      owner = "Shados"; repo = "moonscript";
-      rev = "596f6fb498f120ba1ba79ea43f95d73870b43a77";
-      sha256 = "05kpl9l1311lgjrfghnqnh6m3zkwp09gww056bf30fbvhlfc8iyw";
-    };
-  });
 
   factorio-changelog-creator = poetryBuilder {
     python = pkgs.python37;
@@ -63,8 +47,9 @@ pkgs.mkShell {
     jq
     inotifyTools
     factorio-changelog-creator
+    niv
   ] ++ (with lp; [
-    localMoonscript
+    moonscript
     inotify
     lua moonpick
     luarepl moor
