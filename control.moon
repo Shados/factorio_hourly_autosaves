@@ -3,7 +3,7 @@ GUI = require "lib/gui"
 TICKS_PER_MINUTE = 60 * 60
 TICKS_PER_HOUR = TICKS_PER_MINUTE * 60
 
-local close_gui_button_handler, debug_print, hourly_autosave, manual_save, message_gui, mod_init, mod_print, permissions_error_gui, prefix_reminder, save_gui, save_hotkey, save_shortcut, tagged_save_gui_handler, timestamped_save, tick_to_hours, tick_to_minutes, tick_to_save_name, tick_to_suffix, update_save_interval
+local close_gui_button_handler, debug_print, hourly_autosave, manual_save, mod_init, mod_print, permissions_error_gui, prefix_reminder, prefix_reminder_gui, prefix_reminder_gui_handler, save_hotkey, save_shortcut, tagged_save_gui, tagged_save_gui_handler, timestamped_save, tick_to_hours, tick_to_minutes, tick_to_save_name, tick_to_suffix, update_save_interval
 
 
 main = ->
@@ -94,7 +94,7 @@ manual_save = (player, tick) ->
   -- TODO Devise an actual permissions system? Will the base game one ever be
   -- accessible to mods? Is there an existing inter-mod solution for this?
   if player.admin
-    save_gui player, tick
+    tagged_save_gui player, tick
   else
     permissions_error_gui player, {"ha-gui.server_save_permission"}
   return
@@ -104,16 +104,82 @@ prefix_reminder = (on_player_joined_game_event) ->
   { :player_index } = on_player_joined_game_event
   player = game.players[player_index]
   return unless player.admin and settings.global["hourly_autosaves_prefix"].value == ""
-  message_gui player, {"ha-gui.set_autosaves_prefix", {"mod-setting-name.hourly_autosaves_prefix"}}
+  prefix_reminder_gui player
   return
 
 
-save_gui = (player, tick) ->
+prefix_reminder_gui = (player) ->
+  frame = player.gui.screen.add
+    type: "frame"
+    direction: "vertical"
+    caption: {"ha-gui.missing_prefix_dialog"}
+  frame.auto_center = true
+
+  -- Explanatory message stating that the prefix setting is not configured
+  frame.add
+    type: "label"
+    caption: {"ha-gui.missing_prefix_text", {"mod-setting-name.hourly_autosaves_prefix"}}
+
+  text_frame = frame.add
+    type: "frame"
+    style: "inside_deep_frame"
+    direction: "horizontal"
+  text_frame.style.padding = 8
+  -- Frames don't flow things directly, they create an implicit child flow to
+  -- do so; we need vertical_align = center on the child flow, so we create it
+  -- explicitly
+  text_flow = text_frame.add
+    type: "flow"
+    direction: "horizontal"
+  text_flow.style.vertical_align = "center"
+  label = text_flow.add
+    type: "label"
+    caption: {"ha-gui.missing_prefix_label", {"mod-setting-name.hourly_autosaves_prefix"}}
+  -- This is a magic combination that prevents the label from elipsising itself
+  -- and instead forces its parent wider, sourced from Klonan
+  label.style.horizontally_stretchable = false
+  label.style.horizontally_squashable = true
+  prefix_textfield = text_flow.add
+    type: "textfield"
+
+  button_flow = frame.add
+    type: "flow"
+  button_flow.style.top_padding = 8
+  button_flow.style.vertical_align = "center"
+  cancel_button = button_flow.add
+    type: "button"
+    caption: {"ha-gui.cancel_button"}
+    style: "back_button"
+  pusher = button_flow.add
+    type: "empty-widget"
+    style: "draggable_space"
+  pusher.style.horizontally_stretchable = true
+  pusher.style.height = 32
+  pusher.drag_target = frame
+  save_button = button_flow.add
+    type: "button"
+    caption: {"ha-gui.missing_prefix_save_button"}
+    style: "confirm_button"
+
+  GUI.register_handler cancel_button, close_gui_button_handler, frame
+  GUI.register_handler save_button, prefix_reminder_gui_handler, defines.events.on_gui_click, frame, prefix_textfield
+  GUI.register_handler prefix_textfield, prefix_reminder_gui_handler, defines.events.on_gui_confirmed, frame, prefix_textfield
+  return
+
+prefix_reminder_gui_handler = (event, event_filter, gui_frame, prefix_textfield) ->
+  return unless event.name == event_filter
+  settings.global["hourly_autosaves_prefix"] = { value: prefix_textfield.text }
+  GUI.deregister_handlers gui_frame
+  gui_frame.destroy!
+  return
+
+
+tagged_save_gui = (player, tick) ->
   -- NOTE: There's no way to pause the game while this dialog is up, sadly
   frame = player.gui.screen.add
     type: "frame"
     direction: "vertical"
-    caption: {"ha-gui.save_dialog"}
+    caption: {"ha-gui.tagged_save_dialog"}
   frame.auto_center = true
 
   text_frame = frame.add
@@ -128,7 +194,7 @@ save_gui = (player, tick) ->
     type: "flow"
     direction: "horizontal"
   text_flow.style.vertical_align = "center"
-  -- NOTE: I *could* do a tick handler to update the save name at every 60s
+  -- TODO: I *could* do a tick handler to update the save name at every 60s
   -- interval, otherwise it might fall out of date while the player has the GUI
   -- open
   label = text_flow.add
@@ -138,7 +204,7 @@ save_gui = (player, tick) ->
   -- and instead forces its parent wider, sourced from Klonan
   label.style.horizontally_stretchable = false
   label.style.horizontally_squashable = true
-  name_field = text_flow.add
+  name_textfield = text_flow.add
     type: "textfield"
 
   button_flow = frame.add
@@ -162,10 +228,8 @@ save_gui = (player, tick) ->
 
   -- Register handlers for the buttons & text field
   GUI.register_handler back_button, close_gui_button_handler, frame
-  GUI.register_handler save_button, tagged_save_gui_handler,
-    defines.events.on_gui_click, frame, name_field
-  GUI.register_handler name_field, tagged_save_gui_handler,
-    defines.events.on_gui_confirmed, frame, name_field
+  GUI.register_handler save_button, tagged_save_gui_handler, defines.events.on_gui_click, frame, name_textfield
+  GUI.register_handler name_textfield, tagged_save_gui_handler, defines.events.on_gui_confirmed, frame, name_textfield
   return
 
 
@@ -196,45 +260,18 @@ permissions_error_gui = (player, action) ->
   GUI.register_handler back_button, close_gui_button_handler, frame
   return
 
-
-message_gui = (player, message) ->
-  frame = player.gui.screen.add
-    type: "frame"
-    direction: "vertical"
-    caption: {"ha-gui.message_dialog"}
-  frame.auto_center = true
-  frame.add
-    type: "label"
-    caption: message
-  button_flow = frame.add
-    type: "flow"
-  button_flow.style.top_padding = 8
-  button_flow.style.vertical_align = "center"
-  pusher = button_flow.add
-    type: "empty-widget"
-    style: "draggable_space_with_no_left_margin"
-  pusher.style.horizontally_stretchable = true
-  pusher.style.height = 32
-  pusher.drag_target = frame
-  ok_button = button_flow.add
-    type: "button"
-    caption: {"ha-gui.ok_button"}
-    style: "confirm_button"
-
-  GUI.register_handler ok_button, close_gui_button_handler, frame
-  return
-
-
 close_gui_button_handler = (event, gui_frame) ->
   return unless event.name == defines.events.on_gui_click
   GUI.deregister_handlers gui_frame
   gui_frame.destroy!
+  return
 
 tagged_save_gui_handler = (event, event_filter, gui_frame, save_name_field) ->
   return unless event.name == event_filter
   timestamped_save event.tick, save_name_field.text
   GUI.deregister_handlers gui_frame
   gui_frame.destroy!
+  return
 
 
 debug_print = (msg) ->

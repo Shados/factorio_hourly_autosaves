@@ -1,4 +1,12 @@
 {
+  "1.x": {
+    "date": "2021-11-07",
+    "Categories": {
+      "Changes": [
+        "The missing-prefix reminder now prompts the player to set the setting directly from its GUI"
+      ]
+    }
+  },
   "1.0.1": {
     "date": "2021-02-23",
     "Categories": {

@@ -2,13 +2,14 @@
 
 - [x] Do up a readme.md file for github
 - [x] Make the missing-prefix reminder use a GUI dialog instead of a message
+- [x] Make the missing-prefix GUI have a text box to actually *set* the prefix
+  directly from the reminder :)
+- [ ] Figure out an *automated* testing approach that would actually work
 - [ ] Requests for the Factorio devs
     - [ ] Add an additional `game.save()` function that works in SP and doesn't
       add the `autosave-` prefix
     - [ ] Allow creating saves in subdirectories from the various save
       functions -- this can only be done manually, right now
-- [ ] Make the missing-prefix GUI have a text box to actually *set* the prefix
-  directly from the reminder :)
 
 
 ## User Requests
@@ -31,3 +32,5 @@
    tagged save instead of actually making the autosave
    - SP-only? If not, how do we determine who to prompt in MP? Make the setting
    `runtime-per-user` and prompt only the players that opt into it?
+   - It turns out that mods can't trigger saves for non-server players, so this
+   is irrelevant

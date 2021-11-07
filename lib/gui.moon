@@ -1,6 +1,10 @@
 local GUI, gui_handlers
 gui_handlers = {}
 
+-- Provides a proxy for generic GUI event types and dispatches them
+-- per-element.
+-- This lets me wire up event handlers to specific GUI elements, which I
+-- personally find to be a more natural approach.
 GUI =
   register_handler: (element, handler, ...) ->
     player_gui_handlers = gui_handlers[element.player_index]
