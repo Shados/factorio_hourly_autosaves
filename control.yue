@@ -31,8 +31,8 @@ main = ->
 
 mod_init = ->
   -- Store the initial hourly_autosaves_interval so we can gracefully handle changes mid-game
-  if _G.global.autosave_interval == nil
-    _G.global.autosave_interval = settings.global["hourly_autosaves_interval"].value
+  if storage.autosave_interval == nil
+    storage.autosave_interval = settings.global["hourly_autosaves_interval"].value
   return
 
 
@@ -88,7 +88,7 @@ update_save_interval = (on_runtime_mod_setting_changed_event) ->
   return if on_runtime_mod_setting_changed_event.setting != "hourly_autosaves_interval"
 
   new_interval = settings.global["hourly_autosaves_interval"].value
-  old_interval = _G.global.autosave_interval
+  old_interval = storage.autosave_interval
 
   debug_print {"debug.update_save_interval", old_interval, new_interval}
 
@@ -98,7 +98,7 @@ update_save_interval = (on_runtime_mod_setting_changed_event) ->
   -- Re-register new one
   script.on_nth_tick new_interval * TICKS_PER_MINUTE, hourly_autosave
 
-  _G.global.autosave_interval = new_interval
+  storage.autosave_interval = new_interval
   return
 
 save_hotkey = (tagged_save_hotkey_event) ->
@@ -276,7 +276,8 @@ permissions_error_gui = (player, action) ->
     style: "back_button"
   pusher = button_flow.add
     type: "empty-widget"
-    style: "draggable_space_with_no_right_margin"
+    style: "draggable"
+    right_margin: 0
   pusher.style.horizontally_stretchable = true
   pusher.style.height = 32
   pusher.drag_target = frame

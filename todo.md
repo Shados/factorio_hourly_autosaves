@@ -4,6 +4,7 @@
 - [x] Make the missing-prefix reminder use a GUI dialog instead of a message
 - [x] Make the missing-prefix GUI have a text box to actually *set* the prefix
   directly from the reminder :)
+- [ ] Look at new/larger icon size and mipmap level stuff
 - [ ] Figure out an *automated* testing approach that would actually work
 - [ ] Requests for the Factorio devs
     - [ ] Add an additional `game.save()` function that works in SP and doesn't

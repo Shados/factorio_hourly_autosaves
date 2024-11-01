@@ -25,9 +25,11 @@ CHANGELOG.md: changelog.json
 package: $(BUILT_FILES) $(PACKAGE_BASE_PATH).zip
 
 debug: $(BUILT_FILES) $(PACKAGE_BASE_PATH)
+	sed -i '$$d' $(PACKAGE_BASE_PATH)/control.lua
 	echo 'settings.global["hourly_autosaves_debug"] = { value = true }' >> $(PACKAGE_BASE_PATH)/control.lua
 
 develop:
+	$(MAKE) debug
 	inotifywait -r Makefile changelog.json $(YUE_FILES) $(PACKAGE_FILES) -m --event close_write 2>/dev/null | while read ev; do \
 		rm -rf $(PACKAGE_DIR)/hourly_autosaves*; \
 		$(MAKE) debug; \

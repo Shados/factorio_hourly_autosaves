@@ -9,6 +9,7 @@
         "A 'prompt-only' mode, where it won't make the autosave directly but instead prompt the user to make a save manually at the configured interval"
       ],
       "Other": [
+        "Updated for Factorio 2.0",
         "Wrote my own changelog generation utility to replace the Python-based one I was using previously"
       ]
     }

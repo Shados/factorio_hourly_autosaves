@@ -12,6 +12,7 @@
 
 ### Other
 
+- Updated for Factorio 2.0
 - Wrote my own changelog generation utility to replace the Python-based one I was using previously
 
 ---
