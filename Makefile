@@ -18,7 +18,8 @@ build: $(BUILT_FILES)
 	$(MOONC) $< -o $@
 
 CHANGELOG.md: changelog.json
-	factorio-changelog-creator ./ changelog.json --format md
+	touch $@
+	# factorio-changelog-creator ./ changelog.json --format md
 
 package: $(BUILT_FILES) $(PACKAGE_BASE_PATH).zip
 
@@ -34,7 +35,7 @@ develop:
 $(PACKAGE_BASE_PATH): changelog.json $(PACKAGE_FILES)
 	@test -d $@ || mkdir -p $@
 	cp --parents -r $(PACKAGE_FILES) $@/
-	factorio-changelog-creator $@/ changelog.json --format ingame
+	# factorio-changelog-creator $@/ changelog.json --format ingame
 
 $(PACKAGE_BASE_PATH).zip: $(PACKAGE_BASE_PATH)
 	cd $(PACKAGE_DIR); zip -r $(abspath $@) -xi $(PACKAGE_NAME)_$(PACKAGE_VERSION)/
