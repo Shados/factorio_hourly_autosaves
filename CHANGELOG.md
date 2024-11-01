@@ -2,6 +2,10 @@
 
 ## 1.1.0 (2024-11-01)
 
+### Bugfixes
+
+- Fix *saved* mod GUI windows being non-responsive (and non-closable) after loading a save containing them
+
 ### Changes
 
 - The missing-prefix reminder now prompts the player to set the setting directly from its GUI

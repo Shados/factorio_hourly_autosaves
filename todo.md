@@ -9,8 +9,10 @@
 - [ ] Requests for the Factorio devs
     - [ ] Add an additional `game.save()` function that works in SP and doesn't
       add the `autosave-` prefix
-    - [ ] Allow creating saves in subdirectories from the various save
-      functions -- this can only be done manually, right now
+- [ ] Multiple save-reminder prompt and manual-save GUIs can accumulate over
+  time if each is not accepted or dismissed before the next is triggered. Each
+  functions fully independently. It would probably be best to detect if an
+  existing prompt is still around, and noop if so.
 
 ## Tooling
 

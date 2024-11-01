@@ -1,38 +1,55 @@
-local GUI, gui_handlers
-gui_handlers = {}
+local GUI, gui_callbacks
+gui_callbacks = {}
 
 -- Provides a proxy for generic GUI event types and dispatches them
 -- per-element.
 -- This lets me wire up event handlers to specific GUI elements, which I
--- personally find to be a more natural approach.
+-- personally find to be a nice approach.
 GUI =
-  register_handler: (element, handler, ...) ->
-    player_gui_handlers = gui_handlers[element.player_index]
-    unless player_gui_handlers
-      player_gui_handlers = {}
-      gui_handlers[element.player_index] = player_gui_handlers
+  handlers: {}
+
+  on_init: ->
+    if storage.gui
+      GUI.on_load!
+    else
+      storage.gui = gui_callbacks
+    return
+
+  on_load: ->
+    gui_callbacks = storage.gui
+
+  register_callback: (element, handler_name, ...) ->
+    assert GUI.handlers[handler_name] != nil, "No such GUI handler registered: #{handler_name}"
+    player_gui_callbacks = gui_callbacks[element.player_index]
+    unless player_gui_callbacks
+      player_gui_callbacks = {}
+      gui_callbacks[element.player_index] = player_gui_callbacks
 
     params = {...}
-    player_gui_handlers[element.index] = {handler, params}
+    player_gui_callbacks[element.index] = {handler_name, params}
+    return
 
-
-  deregister_handlers: (element) ->
-    player_gui_handlers = gui_handlers[element.player_index]
-    return unless player_gui_handlers
-    player_gui_handlers[element.index] = nil
-    -- Recursively deregister handlers for children
+  deregister_callbacks: (element) ->
+    player_gui_callbacks = gui_callbacks[element.player_index]
+    return unless player_gui_callbacks
+    player_gui_callbacks[element.index] = nil
+    -- Recursively deregister callbacks for children
     for _, child_element in pairs element.children
-      GUI.deregister_handlers child_element
+      GUI.deregister_callbacks child_element
+    return
 
   on_gui_event: (event) ->
     {:element} = event
     return unless (element and element.valid)
-    player_gui_handlers = gui_handlers[element.player_index]
-    return unless player_gui_handlers
-    registration = player_gui_handlers[element.index]
+    player_gui_callbacks = gui_callbacks[element.player_index]
+    return unless player_gui_callbacks
+    registration = player_gui_callbacks[element.index]
     if registration
-      {handler, params} = registration
+      {handler_name, params} = registration
+      handler = GUI.handlers[handler_name]
+      assert handler != nil, "No such GUI handler registered: #{handler_name}"
       handler(event, table.unpack params)
+    return
 
   setup: ->
     script.on_event defines.events.on_gui_checked_state_changed, GUI.on_gui_event
@@ -47,5 +64,6 @@ GUI =
     script.on_event defines.events.on_gui_switch_state_changed, GUI.on_gui_event
     script.on_event defines.events.on_gui_text_changed, GUI.on_gui_event
     script.on_event defines.events.on_gui_value_changed, GUI.on_gui_event
+    return
 
 return GUI

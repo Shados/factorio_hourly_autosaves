@@ -3,12 +3,12 @@ GUI = require "lib/gui"
 TICKS_PER_MINUTE = 60 * 60
 TICKS_PER_HOUR = TICKS_PER_MINUTE * 60
 
-local close_gui_button_handler, debug_print, hourly_autosave, manual_save, mod_init, mod_print, permissions_error_gui, prefix_reminder, prefix_reminder_gui, prefix_reminder_gui_handler, save_hotkey, save_shortcut, tagged_save_gui, tagged_save_gui_handler, timestamped_save, tick_to_hours, tick_to_minutes, tick_to_save_name, tick_to_suffix, update_save_interval
+local *
 
 
 main = ->
-  -- Default the save name prefix on startup
-  script.on_init mod_init
+  script.on_init on_init
+  script.on_load on_load
 
   -- Schedule the save
   script.on_nth_tick settings.global["hourly_autosaves_interval"].value * TICKS_PER_MINUTE, hourly_autosave
@@ -25,16 +25,22 @@ main = ->
   -- Register handler for the missing-prefix reminder GUI notification
   script.on_event defines.events.on_player_joined_game, prefix_reminder
 
+  -- Register GUI event handlers
   GUI.setup!
+  GUI.handlers = GUI_HANDLERS
   return
 
 
-mod_init = ->
+on_init = ->
+  GUI.on_init!
   -- Store the initial hourly_autosaves_interval so we can gracefully handle changes mid-game
   if storage.autosave_interval == nil
     storage.autosave_interval = settings.global["hourly_autosaves_interval"].value
   return
 
+on_load = ->
+  GUI.on_load!
+  return
 
 hourly_autosave = (nth_tick_event) ->
   tick = nth_tick_event.tick
@@ -43,11 +49,6 @@ hourly_autosave = (nth_tick_event) ->
   unless settings.global["hourly_autosaves_prompt_only"].value
     timestamped_save tick
   else
-    -- FIXME: Multiple save prompts can accumulate over time if each is not
-    -- accepted or dismissed before the next autosave event occurs. Each
-    -- functions fully independently. It would probably be best to detect if an
-    -- existing prompt is still around, and noop if so. Similarly, pressing the
-    -- manual-save button repeatedly will result in multiple save prompts.
     debug_print "Prompting to save instead of saving"
     -- Pick the first-available admin, if any are on, and show them the gui.
     -- Rejected alternative behaviours:
@@ -185,16 +186,9 @@ prefix_reminder_gui = (player) ->
     caption: {"ha-gui.missing_prefix_save_button"}
     style: "confirm_button"
 
-  GUI.register_handler cancel_button, close_gui_button_handler, frame
-  GUI.register_handler save_button, prefix_reminder_gui_handler, defines.events.on_gui_click, frame, prefix_textfield
-  GUI.register_handler prefix_textfield, prefix_reminder_gui_handler, defines.events.on_gui_confirmed, frame, prefix_textfield
-  return
-
-prefix_reminder_gui_handler = (event, event_filter, gui_frame, prefix_textfield) ->
-  return unless event.name == event_filter
-  settings.global["hourly_autosaves_prefix"] = { value: prefix_textfield.text }
-  GUI.deregister_handlers gui_frame
-  gui_frame.destroy!
+  GUI.register_callback cancel_button, "close_frame", frame
+  GUI.register_callback save_button, "prefix_reminder", defines.events.on_gui_click, frame, prefix_textfield
+  GUI.register_callback prefix_textfield, "prefix_reminder", defines.events.on_gui_confirmed, frame, prefix_textfield
   return
 
 
@@ -251,9 +245,9 @@ tagged_save_gui = (player, tick) ->
     style: "confirm_button"
 
   -- Register handlers for the buttons & text field
-  GUI.register_handler back_button, close_gui_button_handler, frame
-  GUI.register_handler save_button, tagged_save_gui_handler, defines.events.on_gui_click, frame, name_textfield
-  GUI.register_handler name_textfield, tagged_save_gui_handler, defines.events.on_gui_confirmed, frame, name_textfield
+  GUI.register_callback back_button, "close_frame", frame
+  GUI.register_callback save_button, "tagged_save", defines.events.on_gui_click, frame, name_textfield
+  GUI.register_callback name_textfield, "tagged_save", defines.events.on_gui_confirmed, frame, name_textfield
   return
 
 
@@ -282,20 +276,7 @@ permissions_error_gui = (player, action) ->
   pusher.style.height = 32
   pusher.drag_target = frame
 
-  GUI.register_handler back_button, close_gui_button_handler, frame
-  return
-
-close_gui_button_handler = (event, gui_frame) ->
-  return unless event.name == defines.events.on_gui_click
-  GUI.deregister_handlers gui_frame
-  gui_frame.destroy!
-  return
-
-tagged_save_gui_handler = (event, event_filter, gui_frame, save_name_field) ->
-  return unless event.name == event_filter
-  timestamped_save event.tick, save_name_field.text
-  GUI.deregister_handlers gui_frame
-  gui_frame.destroy!
+  GUI.register_callback back_button, "close_frame", frame
   return
 
 
@@ -327,8 +308,25 @@ tick_to_hours = (tick) ->
 tick_to_minutes = (tick) ->
   math.floor tick / TICKS_PER_MINUTE
 
+GUI_HANDLERS =
+  close_frame: (event, gui_frame) ->
+    return unless event.name == defines.events.on_gui_click
+    GUI.deregister_callbacks gui_frame
+    gui_frame.destroy!
+    return
+  prefix_reminder: (event, event_filter, gui_frame, prefix_textfield) ->
+    return unless event.name == event_filter
+    settings.global["hourly_autosaves_prefix"] = { value: prefix_textfield.text }
+    GUI.deregister_callbacks gui_frame
+    gui_frame.destroy!
+    return
+  tagged_save: (event, event_filter, gui_frame, save_name_field) ->
+    return unless event.name == event_filter
+    timestamped_save event.tick, save_name_field.text
+    GUI.deregister_callbacks gui_frame
+    gui_frame.destroy!
+    return
+
 
 main!
-
-
 return
