@@ -11,6 +11,26 @@
     - [ ] Allow creating saves in subdirectories from the various save
       functions -- this can only be done manually, right now
 
+## Tooling
+
+- [x] Move to Nix flakes
+- [ ] Add a package output to the flake
+- [ ] Set up a tag-triggered automated release process?
+    - [ ] Release to GH
+    - [ ] Release to Factorio mod portal
+- [ ] Write my own changelog generator, use a TOML file as the source rather
+  than JSON?
+    - Alternatively, just use yj to port TOML to JSON as part of the changelog
+    build target?
+
+## Unnecessary Optimisations
+
+They may be the root of all evil, but they sure are fun to implement ;).
+
+- [ ] Cache the settings from `settings.global` into our own table at the
+  top-level in the control phase, then refresh it as required by hooking
+  `on_runtime_mod_setting_changed`
+
 
 ## User Requests
 

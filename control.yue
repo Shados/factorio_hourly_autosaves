@@ -31,8 +31,8 @@ main = ->
 
 mod_init = ->
   -- Store the initial hourly_autosaves_interval so we can gracefully handle changes mid-game
-  if global.autosave_interval == nil
-    global.autosave_interval = settings.global["hourly_autosaves_interval"].value
+  if _G.global.autosave_interval == nil
+    _G.global.autosave_interval = settings.global["hourly_autosaves_interval"].value
   return
 
 
@@ -64,7 +64,7 @@ update_save_interval = (on_runtime_mod_setting_changed_event) ->
   return if on_runtime_mod_setting_changed_event.setting != "hourly_autosaves_interval"
 
   new_interval = settings.global["hourly_autosaves_interval"].value
-  old_interval = global.autosave_interval
+  old_interval = _G.global.autosave_interval
 
   debug_print {"debug.update_save_interval", old_interval, new_interval}
 
@@ -74,7 +74,7 @@ update_save_interval = (on_runtime_mod_setting_changed_event) ->
   -- Re-register new one
   script.on_nth_tick new_interval * TICKS_PER_MINUTE, hourly_autosave
 
-  global.autosave_interval = new_interval
+  _G.global.autosave_interval = new_interval
   return
 
 save_hotkey = (tagged_save_hotkey_event) ->
@@ -194,7 +194,7 @@ tagged_save_gui = (player, tick) ->
     type: "flow"
     direction: "horizontal"
   text_flow.style.vertical_align = "center"
-  -- TODO: I *could* do a tick handler to update the save name at every 60s
+  -- FIXME: I *could* do a tick handler to update the save name at every 60s
   -- interval, otherwise it might fall out of date while the player has the GUI
   -- open
   label = text_flow.add

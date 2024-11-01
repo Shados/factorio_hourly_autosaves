@@ -29,9 +29,9 @@
         jq
         inotifyTools
         niv
+        pkgs.nur.repos.shados.yuescript
       ] ++ (with pkgs.lua52Packages; [
         lua luarepl
-        moonscript
 
         busted
       ]);

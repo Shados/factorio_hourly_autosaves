@@ -1,6 +1,7 @@
-MOONC?=moonc
-MOON_FILES=control.moon data.moon settings.moon $(wildcard migrations/*.moon) $(wildcard lib/*.moon)
-LUA_FILES=$(patsubst %.moon,%.lua,$(MOON_FILES))
+YUEC?=yue
+YUE_FILES=control.yue data.yue settings.yue $(wildcard migrations/*.yue) $(wildcard lib/*.yue)
+LUA_FILES=$(patsubst %.yue,%.lua,$(YUE_FILES))
+LUAVER=5.2
 BUILT_FILES=$(LUA_FILES) CHANGELOG.md
 PACKAGE_DIR?=out
 PACKAGE_FILES=info.json locale graphics thumbnail.png LICENSE.md $(LUA_FILES)
@@ -14,8 +15,8 @@ all: build
 
 build: $(BUILT_FILES)
 
-%.lua: %.moon
-	$(MOONC) $< -o $@
+%.lua: %.yue
+	$(YUEC) --target=$(LUAVER) $< -o $@
 
 CHANGELOG.md: changelog.json
 	touch $@
@@ -27,7 +28,7 @@ debug: $(BUILT_FILES) $(PACKAGE_BASE_PATH)
 	echo 'settings.global["hourly_autosaves_debug"] = { value = true }' >> $(PACKAGE_BASE_PATH)/control.lua
 
 develop:
-	inotifywait -r Makefile $(MOON_FILES) $(PACKAGE_FILES) -m --event close_write 2>/dev/null | while read ev; do \
+	inotifywait -r Makefile $(YUE_FILES) $(PACKAGE_FILES) -m --event close_write 2>/dev/null | while read ev; do \
 		rm -rf $(PACKAGE_DIR)/hourly_autosaves*; \
 		$(MAKE) debug; \
 		done
@@ -42,7 +43,7 @@ $(PACKAGE_BASE_PATH).zip: $(PACKAGE_BASE_PATH)
 	rm -rf $(PACKAGE_BASE_PATH)/
 
 watch: build
-	moonc -w $(MOON_FILES)
+	$(YUEC) -w $(YUE_FILES)
 
 clean:
 	rm -rf $(LUA_FILES) CHANGELOG.md $(PACKAGE_DIR)/*.zip
