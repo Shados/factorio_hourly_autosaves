@@ -3,9 +3,8 @@
     nixpkgs.url = "nixpkgs";
     flake-utils.url = github:numtide/flake-utils;
     nur.url = github:nix-community/NUR;
-    poetry2nix.url = github:nix-community/poetry2nix;
   };
-  outputs = { self, nixpkgs, flake-utils, nur, poetry2nix, ... }: flake-utils.lib.eachDefaultSystem (system: let
+  outputs = { self, nixpkgs, flake-utils, nur, ... }: flake-utils.lib.eachDefaultSystem (system: let
     inherit (nixpkgs.lib) singleton;
 
     pkgs = import nixpkgs {
@@ -29,9 +28,11 @@
         jq
         inotifyTools
         niv
-        pkgs.nur.repos.shados.yuescript
       ] ++ (with pkgs.lua52Packages; [
         lua luarepl
+
+        # Used by tooling
+        yuescript argparse inspect rapidjson
 
         busted
       ]);

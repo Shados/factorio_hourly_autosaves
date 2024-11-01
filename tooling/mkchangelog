@@ -1,0 +1,162 @@
+#!/usr/bin/env -S yue -e
+
+import "argparse"
+import "rapidjson"
+import "inspect"
+
+-- In-game format consists of a list of version descriptions, each with a
+-- version number, a date, and a list of change entries grouped by category.
+-- See the below example:
+-- ---------------------------------------------------------------------------------------------------
+-- Version: 1.0.0
+-- Date: 2020-08-27
+--
+--   Changes:
+--     - Autosave timestamps are now 0-padded out to 5 digits for hours, 2 for minutes (e.g. SavePrefix-00012h00m), ensuring they sort lexicographically in chronological order
+--     - The missing-prefix reminder now uses a GUI dialog instead of a simple text message
+--
+--   Features:
+--     - The ability to manually trigger a timestamped save with a custom suffix, via a shortcut bar button or keybind
+--
+--   Other:
+--     - Gave the mod a thumbnail/icon
+INGAME_SECTION_SEPARATOR = "---------------------------------------------------------------------------------------------------" -- Exactly 99 dashes
+INGAME_CATEGORIES = {
+  "Major Features"
+  "Features"
+  "Minor Features"
+  "Graphics"
+  "Sounds"
+  "Optimizations"
+  "Balancing"
+  "Combat Balancing"
+  "Circuit Network"
+  "Changes"
+  "Bugfixes"
+  "Modding"
+  "Scripting"
+  "Gui"
+  "Control"
+  "Translation"
+  "Debug"
+  "Ease of use"
+  "Info"
+  "Locale"
+  "Other" -- Not actually one of the game-recognised ones, but we need a catch-all
+}
+INGAME_CATEGORIES_STR = do
+  val = ""
+  for cat in *INGAME_CATEGORIES
+    val ..= cat .. "\n"
+  val
+INGAME_CATEGORIES = {cat, true for cat in *INGAME_CATEGORIES}
+
+local *
+
+main = (args) ->
+  parser = argparse {
+    name: "mkchangelog"
+    description: "A utility to generate Factorio mod changelog files from a JSON source"
+  }
+  parser\argument "json_file", "Source JSON file to read changelog information from"
+  parser\argument "output_dir", "Directory to deposit the generated output file into"
+  parser
+    \argument "output_format", "Output format to produce"
+    \choices {"ingame", "markdown"}
+  args = parser\parse args
+
+  output_dir = args.output_dir
+  if (output_dir\sub -1) == "/"
+    output_dir = output_dir\sub 1, output_dir\len! - 1
+
+  source = parse_source args.json_file
+
+  output_lines = switch args.output_format
+    when "ingame" then format_ingame source
+    when "markdown" then format_markdown source
+
+  output_path = switch args.output_format
+    when "ingame" then "#{output_dir}/changelog.txt"
+    when "markdown" then "#{output_dir}/CHANGELOG.md"
+
+  write_output output_path, output_lines
+  return
+
+parse_version = (version_str) ->
+  version_numbers = [tonumber(num) for num in *{version_str\match "^(%d+)%.(%d+)%.(%d+)$"}]
+  assert next(version_numbers) != nil, "Version strings must consist of three numbers separated by . characters, '#{version_str}' is not a valid version string"
+  {major, minor, sub} = version_numbers
+  assert not (major == minor == sub == 0), "0.0.0 is not a valid version number"
+  return version_numbers
+
+parse_source = (source_file_path) ->
+  source = rapidjson.load source_file_path
+  parsed = [{version: (parse_version version), entry: entry} for version, entry in pairs source]
+  table.sort parsed, sort_entries
+  for parsed_item in *parsed
+    new_cats = {}
+    for category, changes in pairs parsed_item.entry.categories
+      assert INGAME_CATEGORIES[category], "'#{category}' is not a valid category, must be one of:\n#{INGAME_CATEGORIES_STR}"
+      for change in *changes
+        assert (change\sub 1, 1) != " ", "Change-lines cannot start with whitespace, the following line is not valid:\n#{change}"
+        assert (change\sub -1) != " ", "Change-lines cannot end with whitespace, the following line is not valid:\n#{change}"
+        assert (change\match "	") == nil, "Change-lines cannot contain tabs, the following line is not valid:\n#{change}"
+    parsed_item.entry.categories = [{category: category, changes: changes} for category, changes in pairs parsed_item.entry.categories]
+    table.sort parsed_item.entry.categories, sort_categories
+  return parsed
+
+-- NOTE: This is reverse compared to normal sort order, as we want newer (larger) versions printed first
+sort_entries = (a, b) ->
+  if a.version[1] == b.version[1]
+    if a.version[2] == b.version[2]
+      return a.version[3] > b.version[3]
+    else
+      return a.version[2] > b.version[2]
+  else
+    return a.version[1] > b.version[1]
+
+sort_categories = (a, b) ->
+  a.category < b.category
+
+format_ingame = (source) ->
+  lines = {}
+  for {:version, :entry} in *source
+    table.insert lines, INGAME_SECTION_SEPARATOR
+    table.insert lines, "Version: #{version[1]}.#{version[2]}.#{version[3]}"
+    table.insert lines, "Date: #{entry.date}"
+    for {:category, :changes} in *entry.categories
+      table.insert lines, "  #{category}:"
+      for change in *changes
+        table.insert lines, "    - #{change}"
+  return lines
+
+format_markdown = (source) ->
+  lines = {}
+  first = true
+  table.insert lines, "# Changelog"
+  for {:version, :entry} in *source
+    unless first
+      table.insert lines, ""
+      table.insert lines, "---"
+    table.insert lines, ""
+    table.insert lines, "## #{version[1]}.#{version[2]}.#{version[3]} (#{entry.date})"
+    for {:category, :changes} in *entry.categories
+      table.insert lines, ""
+      table.insert lines, "### #{category}"
+      table.insert lines, ""
+      for change in *changes
+        table.insert lines, "- #{change}"
+    first = false
+
+  return lines
+
+write_output = (path, lines) ->
+  print "writing to #{path}"
+  with io.open path, "w"
+    for line in *lines
+      \write line
+      \write "\n"
+  return
+
+
+main(arg)

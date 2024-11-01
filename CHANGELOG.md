@@ -1,5 +1,21 @@
 # Changelog
 
+## 1.1.0 (2024-11-01)
+
+### Changes
+
+- The missing-prefix reminder now prompts the player to set the setting directly from its GUI
+
+### Features
+
+- A 'prompt-only' mode, where it won't make the autosave directly but instead prompt the user to make a save manually at the configured interval
+
+### Other
+
+- Wrote my own changelog generation utility to replace the Python-based one I was using previously
+
+---
+
 ## 1.0.1 (2021-02-23)
 
 ### Other

@@ -20,7 +20,7 @@ build: $(BUILT_FILES)
 
 CHANGELOG.md: changelog.json
 	touch $@
-	# factorio-changelog-creator ./ changelog.json --format md
+	tooling/mkchangelog changelog.json ./ markdown
 
 package: $(BUILT_FILES) $(PACKAGE_BASE_PATH).zip
 
@@ -28,7 +28,7 @@ debug: $(BUILT_FILES) $(PACKAGE_BASE_PATH)
 	echo 'settings.global["hourly_autosaves_debug"] = { value = true }' >> $(PACKAGE_BASE_PATH)/control.lua
 
 develop:
-	inotifywait -r Makefile $(YUE_FILES) $(PACKAGE_FILES) -m --event close_write 2>/dev/null | while read ev; do \
+	inotifywait -r Makefile changelog.json $(YUE_FILES) $(PACKAGE_FILES) -m --event close_write 2>/dev/null | while read ev; do \
 		rm -rf $(PACKAGE_DIR)/hourly_autosaves*; \
 		$(MAKE) debug; \
 		done
@@ -36,7 +36,7 @@ develop:
 $(PACKAGE_BASE_PATH): changelog.json $(PACKAGE_FILES)
 	@test -d $@ || mkdir -p $@
 	cp --parents -r $(PACKAGE_FILES) $@/
-	# factorio-changelog-creator $@/ changelog.json --format ingame
+	tooling/mkchangelog changelog.json $@ ingame
 
 $(PACKAGE_BASE_PATH).zip: $(PACKAGE_BASE_PATH)
 	cd $(PACKAGE_DIR); zip -r $(abspath $@) -xi $(PACKAGE_NAME)_$(PACKAGE_VERSION)/
@@ -46,4 +46,4 @@ watch: build
 	$(YUEC) -w $(YUE_FILES)
 
 clean:
-	rm -rf $(LUA_FILES) CHANGELOG.md $(PACKAGE_DIR)/*.zip
+	rm -rf $(LUA_FILES) $(PACKAGE_DIR)/*.zip
