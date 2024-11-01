@@ -40,7 +40,31 @@ hourly_autosave = (nth_tick_event) ->
   tick = nth_tick_event.tick
   return if tick == 0
 
-  timestamped_save tick
+  unless settings.global["hourly_autosaves_prompt_only"].value
+    timestamped_save tick
+  else
+    -- FIXME: Multiple save prompts can accumulate over time if each is not
+    -- accepted or dismissed before the next autosave event occurs. Each
+    -- functions fully independently. It would probably be best to detect if an
+    -- existing prompt is still around, and noop if so. Similarly, pressing the
+    -- manual-save button repeatedly will result in multiple save prompts.
+    debug_print "Prompting to save instead of saving"
+    -- Pick the first-available admin, if any are on, and show them the gui.
+    -- Rejected alternative behaviours:
+    -- - Show it to all online admins (but this would likely result in multiple
+    --   saves being made)
+    -- - Show it to only a configured admin (but then this must be explicitly
+    --   configured)
+    -- - Show it only to player index #1, if they are an admin and online, on
+    --   the assumption that they are the server host or owner (but this is
+    --   really just a degraded form of the approach I chose)
+    for _index, player in pairs game.players
+      continue unless player.admin and player.connected
+      -- TODO Instead of a tagged save gui, pop up a "notification" with
+      -- buttons "Dismiss" "Save Now" "Tagged Save", where the third opens the
+      -- tagged save gui? Possibly have the "Dismiss" as a corner X mark
+      tagged_save_gui player, tick
+      break
   return
 
 

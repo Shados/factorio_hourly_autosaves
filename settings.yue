@@ -23,6 +23,13 @@ data\extend {
     order: "0020"
     allow_blank: true
   },
+  {
+    name: "hourly_autosaves_prompt_only"
+    type: "bool-setting"
+    default_value: false
+    setting_type: "runtime-global"
+    order: "0030"
+  },
 }
 
 return

@@ -48,7 +48,7 @@ They may be the root of all evil, but they sure are fun to implement ;).
 
 ### Mithaldu
 
-1. [ ] Add a "prompt only" configuration option to prompt the player for a
+1. [x] Add a "prompt only" configuration option to prompt the player for a
    tagged save instead of actually making the autosave
    - SP-only? If not, how do we determine who to prompt in MP? Make the setting
    `runtime-per-user` and prompt only the players that opt into it?

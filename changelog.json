@@ -1,9 +1,12 @@
 {
   "1.x": {
-    "date": "2021-11-07",
+    "date": "2024-11-01",
     "Categories": {
       "Changes": [
         "The missing-prefix reminder now prompts the player to set the setting directly from its GUI"
+      ],
+      "Features": [
+        "A 'prompt-only' mode, where it won't make the autosave directly but instead prompt the user to make a save manually at the configured interval"
       ]
     }
   },
