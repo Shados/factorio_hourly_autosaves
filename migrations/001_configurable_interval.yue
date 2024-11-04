@@ -1,0 +1,2 @@
+if storage.autosave_interval == nil
+  storage.autosave_interval = settings.global["hourly_autosaves_interval"].value
