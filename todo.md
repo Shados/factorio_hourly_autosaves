@@ -13,7 +13,7 @@
   time if each is not accepted or dismissed before the next is triggered. Each
   functions fully independently. It would probably be best to detect if an
   existing prompt is still around, and noop if so.
-- [ ] Pause game while the manual save prompt is up.
+- [x] Pause game while the manual save GUI is up.
 - [ ] Look into replacing the prompt-mode GUI with some sort of
   notification/pop-up/toast approach instead, it's kinda intrusive as-is.
 

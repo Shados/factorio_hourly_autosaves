@@ -66,7 +66,7 @@ hourly_autosave = (nth_tick_event) ->
       -- TODO Instead of a tagged save gui, pop up a "notification" with
       -- buttons "Dismiss" "Save Now" "Tagged Save", where the third opens the
       -- tagged save gui? Possibly have the "Dismiss" as a corner X mark
-      tagged_save_gui player, tick
+      tagged_save_gui player, tick, false
       break
   return
 
@@ -122,7 +122,7 @@ manual_save = (player, tick) ->
   -- TODO Devise an actual permissions system? Will the base game one ever be
   -- accessible to mods? Is there an existing inter-mod solution for this?
   if player.admin
-    tagged_save_gui player, tick
+    tagged_save_gui player, tick, true
   else
     permissions_error_gui player, {"ha-gui.server_save_permission"}
   return
@@ -195,8 +195,10 @@ prefix_reminder_gui = (player) ->
   return
 
 
-tagged_save_gui = (player, tick) ->
-  -- NOTE: There's no way to pause the game while this dialog is up, sadly
+tagged_save_gui = (player, tick, should_pause) ->
+  if should_pause
+    -- Pause the game when the GUI is in response to a manual button press
+    game.tick_paused = true
   frame = player.gui.screen.add
     type: "frame"
     direction: "vertical"
@@ -247,10 +249,17 @@ tagged_save_gui = (player, tick) ->
     caption: {"ha-gui.save_button"}
     style: "confirm_button"
 
-  -- Register handlers for the buttons & text field
+  -- Register callbacks for the buttons & text field
   GUI.register_callback back_button, "close_frame", frame
   GUI.register_callback save_button, "tagged_save", defines.events.on_gui_click, frame, name_textfield
   GUI.register_callback name_textfield, "tagged_save", defines.events.on_gui_confirmed, frame, name_textfield
+
+  if should_pause
+    -- Register additional callbacks to automatically unpause the game after the
+    -- previous callback has executed
+    GUI.register_callback back_button, "unpause", defines.events.on_gui_click
+    GUI.register_callback save_button, "unpause", defines.events.on_gui_click
+    GUI.register_callback name_textfield, "unpause", defines.events.on_gui_confirmed
   return
 
 
@@ -333,6 +342,11 @@ GUI_HANDLERS =
     timestamped_save event.tick, save_name_field.text
     GUI.deregister_callbacks gui_frame
     gui_frame.destroy!
+    return
+
+  unpause: (event, event_filter) ->
+    return unless event.name == event_filter
+    game.tick_paused = false
     return
 
 

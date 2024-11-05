@@ -1,4 +1,6 @@
 local GUI, gui_callbacks
+-- Structure of this:
+-- <player_index>: {<element_index>: [<callback1>, <callback2>, ..., <callbackN>]}
 gui_callbacks = {}
 
 -- Provides a proxy for generic GUI event types and dispatches them
@@ -10,15 +12,18 @@ GUI =
 
 
   on_init: ->
-    if storage.gui
-      GUI.on_load!
-    else
-      storage.gui = gui_callbacks
+    -- During initial start/add to a save, we setup an empty callback table in
+    -- the persistent storage, retaining the existing local reference in
+    -- gui_callbacks
+    storage.gui = gui_callbacks
     return
 
 
   on_load: ->
+    -- During load in an existing modded save, we replace our local reference
+    -- to gui_callbacks with one to the persisted version
     gui_callbacks = storage.gui
+    return
 
 
   register_callback: (element, handler_name, ...) ->
@@ -29,7 +34,9 @@ GUI =
       gui_callbacks[element.player_index] = player_gui_callbacks
 
     params = {...}
-    player_gui_callbacks[element.index] = {handler_name, params}
+    unless player_gui_callbacks[element.index]
+      player_gui_callbacks[element.index] = {}
+    player_gui_callbacks[element.index][] = {handler_name, params}
     return
 
 
@@ -47,10 +54,8 @@ GUI =
     {:element} = event
     return unless (element and element.valid)
     player_gui_callbacks = gui_callbacks[element.player_index]
-    return unless player_gui_callbacks
-    registration = player_gui_callbacks[element.index]
-    if registration
-      {handler_name, params} = registration
+    return unless player_gui_callbacks and player_gui_callbacks[element.index]
+    for {handler_name, params} in *player_gui_callbacks[element.index]
       handler = GUI.handlers[handler_name]
       assert handler != nil, "No such GUI handler registered: #{handler_name}"
       handler(event, table.unpack params)
@@ -71,5 +76,6 @@ GUI =
     script.on_event defines.events.on_gui_text_changed, GUI.on_gui_event
     script.on_event defines.events.on_gui_value_changed, GUI.on_gui_event
     return
+
 
 return GUI
