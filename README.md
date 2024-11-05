@@ -1,4 +1,5 @@
 # <img src="thumbnail.png" alt="Mod thumbnail/icon" /> Hourly Autosaves
+
 A tiny Factorio mod to create timestamped saves with a custom prefix at a
 configurable interval (by default, hourly).
 
@@ -7,6 +8,7 @@ regular intervals, allowing me to see how my factory evolves over time using
 tools like [this](https://github.com/L0laapk3/FactorioMaps).
 
 ## Features
+
 - Saves are timestamped with the gameplay time using 5+2-digit hour+minute
   0-padded timestamps (e.g. `00012h05m`), which ensures that the lexicographic
   order of the save names is equivalent to their chronological order (read:
@@ -21,6 +23,7 @@ tools like [this](https://github.com/L0laapk3/FactorioMaps).
 
 
 ## Contributing
+
 If you want to directly comment on the code, or make a pull request, do so
 through GitHub. Otherwise, please use the [mod discussion
 board](https://mods.factorio.com/mod/hourly_autosaves/discussion) on the

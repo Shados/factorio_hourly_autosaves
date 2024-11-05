@@ -1,18 +1,19 @@
 # Changelog
 
-## 1.1.0 (2024-11-01)
+## 1.1.0 (2024-11-06)
 
 ### Bugfixes
 
-- Fix *saved* mod GUI windows being non-responsive (and non-closable) after loading a save containing them
+- Fixed *saved* mod GUI windows being non-responsive (and non-closable) after loading a save containing them
 
 ### Changes
 
 - The missing-prefix reminder now prompts the player to set the setting directly from its GUI
+- The manual save GUI now pauses the game while it is open
 
 ### Features
 
-- A 'prompt-only' mode, where it won't make the autosave directly but instead prompt the user to make a save manually at the configured interval
+- Added a 'prompt-only' mode, where it won't make the autosave directly but instead prompt the user to make a save manually
 
 ### Other
 
