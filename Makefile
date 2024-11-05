@@ -2,7 +2,7 @@ YUEC?=yue
 YUE_FILES=control.yue data.yue settings.yue $(wildcard migrations/*.yue) $(wildcard lib/*.yue)
 LUA_FILES=$(patsubst %.yue,%.lua,$(YUE_FILES))
 LUAVER=5.2
-BUILT_FILES=$(LUA_FILES) CHANGELOG.md
+BUILT_FILES=$(LUA_FILES) CHANGELOG.md .luacheckrc
 PACKAGE_DIR?=out
 PACKAGE_FILES=info.json locale graphics thumbnail.png LICENSE.md $(LUA_FILES)
 PACKAGE_NAME=hourly_autosaves
@@ -18,6 +18,9 @@ build: $(BUILT_FILES)
 %.lua: %.yue
 	$(YUEC) --target=$(LUAVER) $< -o $@
 
+.luacheckrc: .luacheckrc.yue
+	$(YUEC) --target=$(LUAVER) $< -o $@
+
 CHANGELOG.md: changelog.json
 	touch $@
 	tooling/mkchangelog changelog.json ./ markdown
@@ -30,7 +33,7 @@ debug: $(BUILT_FILES) $(PACKAGE_BASE_PATH)
 
 develop:
 	$(MAKE) debug
-	inotifywait -r Makefile changelog.json $(YUE_FILES) $(PACKAGE_FILES) -m --event close_write 2>/dev/null | while read ev; do \
+	inotifywait -r Makefile changelog.json $(YUE_FILES) $(PACKAGE_FILES) .luacheckrc.yue -m --event close_write 2>/dev/null | while read ev; do \
 		rm -rf $(PACKAGE_DIR)/hourly_autosaves*; \
 		$(MAKE) debug; \
 		done
@@ -45,7 +48,7 @@ $(PACKAGE_BASE_PATH).zip: $(PACKAGE_BASE_PATH)
 	rm -rf $(PACKAGE_BASE_PATH)/
 
 watch: build
-	$(YUEC) -w $(YUE_FILES)
+	$(YUEC) --target=$(LUAVER) -w $(YUE_FILES)
 
 clean:
 	rm -rf $(LUA_FILES) $(PACKAGE_DIR)/*.zip

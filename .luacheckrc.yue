@@ -1,0 +1,48 @@
+import "luacheck.fs"
+
+-- Use luacheck's fs lib to find the generated Factorio luacheckrc standards definition file
+factorio_config_file = ".luacheckrc.factorio"
+factorio_config_dir = fs.find_file fs.get_current_dir!, factorio_config_file
+factorio_config_path = "#{factorio_config_dir}/#{factorio_config_file}"
+
+-- Load it into a Lua table
+stds_fd = io.open factorio_config_path, "r"
+config = (load stds_fd\read "*a")!
+
+-- Default to assuming all files are run in Factorio's control stage
+config.std = "factorio_control_stage"
+
+config.files =
+  ['.luacheckrc*']: { std: "lua52" }
+
+  -- Overrides for files run in the settings and data stages
+  ['settings.*']: { std: "factorio_data_stage" }
+  ['settings-updates.*']: { std: "factorio_data_stage" }
+  ['settings-final-fixes.*']: { std: "factorio_data_stage" }
+
+  ['data.*']: { std: "factorio_data_stage" }
+  ['data-updates.*']: { std: "factorio_data_stage" }
+  ['data-final-fixes.*']: { std: "factorio_data_stage" }
+
+  -- Overrides for some common names used for data-stage modules
+  ['data/']: { std: "factorio_data_stage" }
+  ['prototypes/']: { std: "factorio_data_stage" }
+  ['settings/']: { std: "factorio_data_stage" }
+  ['lib/data*']: { std: "factorio_data_stage" }
+
+  -- Overrides for Instrument Mode files
+  ['instrument-settings.*']: { std: "factorio_data_stage+factorio_instrument_mode" }
+  ['instrument-data.*']: { std: "factorio_data_stage+factorio_instrument_mode" }
+  ['instrument-after-data.*']: { std: "factorio_data_stage+factorio_instrument_mode" }
+  ['instrument-control.*']: { std: "+factorio_instrument_mode" }
+
+
+config.ignore = {
+  -- Allow variables, parameters, and loop variables prefixed with _ to go
+  -- unused without warning
+  "21[123]/^_"
+  -- Can be triggered by how Yuescript compiles '<foo> unless <bar>' lines, kinda pointless
+  "581"
+}
+
+return config

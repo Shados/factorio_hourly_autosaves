@@ -8,11 +8,14 @@
 - [ ] Figure out an *automated* testing approach that would actually work
 - [ ] Requests for the Factorio devs
     - [ ] Add an additional `game.save()` function that works in SP and doesn't
-      add the `autosave-` prefix
+      add the `autosave-` prefix?
 - [ ] Multiple save-reminder prompt and manual-save GUIs can accumulate over
   time if each is not accepted or dismissed before the next is triggered. Each
   functions fully independently. It would probably be best to detect if an
   existing prompt is still around, and noop if so.
+- [ ] Pause game while the manual save prompt is up.
+- [ ] Look into replacing the prompt-mode GUI with some sort of
+  notification/pop-up/toast approach instead, it's kinda intrusive as-is.
 
 ## Tooling
 
@@ -21,7 +24,7 @@
 - [ ] Set up a tag-triggered automated release process?
     - [ ] Release to GH
     - [ ] Release to Factorio mod portal
-- [ ] Write my own changelog generator, use a TOML file as the source rather
+- [x] Write my own changelog generator, use a TOML file as the source rather
   than JSON?
     - Alternatively, just use yj to port TOML to JSON as part of the changelog
     build target?

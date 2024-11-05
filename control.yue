@@ -33,14 +33,16 @@ main = ->
 
 on_init = ->
   GUI.on_init!
-  -- Store the initial hourly_autosaves_interval so we can gracefully handle changes mid-game
-  if storage.autosave_interval == nil
-    storage.autosave_interval = settings.global["hourly_autosaves_interval"].value
+  -- Store the initial hourly_autosaves_interval so we can gracefully handle
+  -- changes mid-game
+  storage.autosave_interval = settings.global["hourly_autosaves_interval"].value
   return
+
 
 on_load = ->
   GUI.on_load!
   return
+
 
 hourly_autosave = (nth_tick_event) ->
   tick = nth_tick_event.tick
@@ -59,7 +61,7 @@ hourly_autosave = (nth_tick_event) ->
     -- - Show it only to player index #1, if they are an admin and online, on
     --   the assumption that they are the server host or owner (but this is
     --   really just a degraded form of the approach I chose)
-    for _index, player in pairs game.players
+    for _, player in pairs game.players
       continue unless player.admin and player.connected
       -- TODO Instead of a tagged save gui, pop up a "notification" with
       -- buttons "Dismiss" "Save Now" "Tagged Save", where the third opens the
@@ -101,6 +103,7 @@ update_save_interval = (on_runtime_mod_setting_changed_event) ->
 
   storage.autosave_interval = new_interval
   return
+
 
 save_hotkey = (tagged_save_hotkey_event) ->
   { :player_index, :tick } = tagged_save_hotkey_event
@@ -259,7 +262,7 @@ permissions_error_gui = (player, action) ->
   frame.auto_center = true
   frame.add
     type: "label"
-    caption: {"ha-gui.permissions_error_text", {"ha-gui.server_save_permission"}}
+    caption: {"ha-gui.permissions_error_text", action}
   button_flow = frame.add
     type: "flow"
   button_flow.style.top_padding = 8
@@ -308,18 +311,23 @@ tick_to_hours = (tick) ->
 tick_to_minutes = (tick) ->
   math.floor tick / TICKS_PER_MINUTE
 
+
 GUI_HANDLERS =
   close_frame: (event, gui_frame) ->
     return unless event.name == defines.events.on_gui_click
     GUI.deregister_callbacks gui_frame
     gui_frame.destroy!
     return
+
+
   prefix_reminder: (event, event_filter, gui_frame, prefix_textfield) ->
     return unless event.name == event_filter
     settings.global["hourly_autosaves_prefix"] = { value: prefix_textfield.text }
     GUI.deregister_callbacks gui_frame
     gui_frame.destroy!
     return
+
+
   tagged_save: (event, event_filter, gui_frame, save_name_field) ->
     return unless event.name == event_filter
     timestamped_save event.tick, save_name_field.text

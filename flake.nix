@@ -33,6 +33,7 @@
 
         # Used by tooling
         yuescript argparse inspect rapidjson
+        luacheck
 
         busted
       ]);

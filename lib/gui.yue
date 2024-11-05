@@ -8,6 +8,7 @@ gui_callbacks = {}
 GUI =
   handlers: {}
 
+
   on_init: ->
     if storage.gui
       GUI.on_load!
@@ -15,8 +16,10 @@ GUI =
       storage.gui = gui_callbacks
     return
 
+
   on_load: ->
     gui_callbacks = storage.gui
+
 
   register_callback: (element, handler_name, ...) ->
     assert GUI.handlers[handler_name] != nil, "No such GUI handler registered: #{handler_name}"
@@ -29,6 +32,7 @@ GUI =
     player_gui_callbacks[element.index] = {handler_name, params}
     return
 
+
   deregister_callbacks: (element) ->
     player_gui_callbacks = gui_callbacks[element.player_index]
     return unless player_gui_callbacks
@@ -37,6 +41,7 @@ GUI =
     for _, child_element in pairs element.children
       GUI.deregister_callbacks child_element
     return
+
 
   on_gui_event: (event) ->
     {:element} = event
@@ -50,6 +55,7 @@ GUI =
       assert handler != nil, "No such GUI handler registered: #{handler_name}"
       handler(event, table.unpack params)
     return
+
 
   setup: ->
     script.on_event defines.events.on_gui_checked_state_changed, GUI.on_gui_event
